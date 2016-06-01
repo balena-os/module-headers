@@ -1,12 +1,9 @@
-# gen_mod_headers
+# module_headers
 
 Generates kernel module headers from linux source.
 
 This is based on the [arch linux script][arch-script] which does the same task,
 expanded to better handle other architectures.
-
-This is a modified version of a [kernel-scripts script][kernel-scripts-script]
-I've written for my own purposes.
 
 ## Usage
 
@@ -60,4 +57,3 @@ not set it isn't too difficult to make whatever variable is pointing at
 `/lib/modules/$(uname -r)/build` optional using `?=` so you can override it.
 
 [arch-script]:https://www.archlinux.org/packages/core/x86_64/linux/
-[kernel-scripts-script]:https://github.com/lorenzo-stoakes/kernel-scripts/blob/master/kerndev-module-headers
