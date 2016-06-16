@@ -102,12 +102,15 @@ done
 
 # Copy in extra headers. Directories already created above.
 for d in $extra_header_dirs; do
-	[ -d "$d" ] && cp $d/*.h "$target_dir/$d"
+	[ -d "$d" ] && (cp $d/*.h "$target_dir/$d" || true)
 done
 
 # Specific required files.
-mkdir -p "$target_dir/drivers/media/i2c/"
-cp drivers/media/i2c/msp3400-driver.h "$target_dir/drivers/media/i2c/"
+
+if [[ -e drivers/media/i2c/msp3400-driver.h ]]; then
+	mkdir -p "$target_dir/drivers/media/i2c/"
+	cp drivers/media/i2c/msp3400-driver.h "$target_dir/drivers/media/i2c/"
+fi
 
 # Copy in Kconfig files.
 for f in $(find . -name "Kconfig*"); do
