@@ -8,37 +8,40 @@ expanded to better handle other architectures.
 ## Usage
 
 ```
-usage: gen_mod_headers [linux source dir] [target dir] <karch?=x86> <make directives>
+usage: gen_mod_headers [target dir] [linux source dir] <objects dir> <arch> <x-compile-prefix>
 ```
 
-Firstly, copy `.config` and `Module.symvers` into your kernel source
-directory. This files are required for external module building. If you don't
-have Module.symvers, you can generate it with a kernel build.
+Note that `<objects dir>` defaults to the linux source dir (i.e. for the usual
+case where objects are generated in the same directory as the source), and
+`arch` defaults to x86.
+
+Ensure `.config` and `Module.symvers` are in the objects directory (this can be
+the same as the source directory.) If you don't have Module.symvers, you can
+generate it with a kernel build.
 
 If you want to cross-compile, ensure you have the appropriate cross-compile
 version of gcc available. Google 'linaro cross compile' if you need to get hold
-of one.
+of one. Then specify the arch, and the prefix of the cross-compiler as shown
+above.
 
 If you're generating a typical x86 on x86 build, you can simply run something
 like:
 
 ```bash
-./gen_mod_headers ~/linux /tmp/headers
+./gen_mod_headers /tmp/headers ~/linux
 ```
 
 Where `~/linux` here is your linux source code dir, and `/tmp/headers` the
 output directory.
 
-For cross compile you should specify architecture and some make parameters, e.g.:
+For cross compile you should specify architecture and some make parameters,
+e.g.:
 
 ```bash
-./gen_mod_headers ~/linux /tmp/headers arm ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
+./gen_mod_headers /tmp/headers ~/linux ~/linux arm arm-linux-gnueabihf-
 ```
 
-Here we specify arm and pass the `make` parameters `ARCH=arm` and
-`CROSS_COMPILE=arm-linux-gnueabihf-` which specify the target architecture and
-the prefix for your cross-compile gcc binaries, in this example they are
-`arm-linux-gnueabihf-gcc`, `arm-linux-gnueabihf-as`, etc.
+Here we specify arm and the `arm-linux-gnueabihf-` prefix.
 
 ## Compiling against the headers
 
