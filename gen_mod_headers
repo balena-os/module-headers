@@ -37,7 +37,7 @@ function pop()
 	popd >/dev/null
 }
 
-([ -z "$1" ] || [ -z "$2" ] || [ ! -d "$1" ] || ([ -f "$2" ] && [ ! -d "$2" ])) && usage
+[[ $# -ge 2 ]] || usage
 
 # Generate if doesn't exist.
 install -dm755 $2
