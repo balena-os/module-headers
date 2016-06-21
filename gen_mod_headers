@@ -17,7 +17,8 @@ function fatal()
 
 function usage()
 {
-	echo "usage: $(basename $0) [linux source dir] [target dir] <karch?=x86> <make directives>">&2
+	echo "usage: $(basename $0) [target dir] [linux source dir] <objects dir> <arch> <x-compile-prefix>">&2
+
 	exit 1
 }
 
@@ -39,18 +40,31 @@ function pop()
 
 [[ $# -ge 2 ]] || usage
 
-# Generate if doesn't exist.
-install -dm755 $2
+# Generate target dir if doesn't exist.
+install -dm755 $1
 
-linux_dir=$(get_full_path $1)
-target_dir=$(get_full_path $2)
-karch=${3:-x86}
+target_dir=$(get_full_path $1)
+linux_dir=$(get_full_path $2)
+# The directory containing .config and Module.symvers.
+obj_dir=$(get_full_path ${3:-$linux_dir})
+karch=${4:-x86}
+
+if [[ "$karch" != "x86" ]]; then
+	prefix=$5
+
+	[[ -n $prefix ]] || fatal "Non-x86 arch but no prefix specified."
+
+	build_opts="ARCH=$karch CROSS_COMPILE=$prefix"
+fi
+
 karch_dir="arch/$karch"
 target_karch_dir="$target_dir/$karch_dir"
-if [ "$#" -gt 3 ]; then
-    shift 3
-    make_opts="$@"
-fi
+
+[[ -f "${obj_dir}/.config" ]] || fatal "Missing kernel configuration."
+[[ -f "${obj_dir}/Module.symvers" ]] || fatal "Missing Module.symvers."
+
+# Copy in .config and Module.symvers so we can specify O=$target_dir.
+cp "${obj_dir}/.config" "${obj_dir}/Module.symvers" "$target_dir"
 
 extra_header_dirs="drivers/md net/mac80211 drivers/media/dvb-core include/config/dvb \
 drivers/media/dvb-frontends drivers/media/usb/dvb-usb drivers/media/tuners"
@@ -58,16 +72,14 @@ drivers/media/dvb-frontends drivers/media/usb/dvb-usb drivers/media/tuners"
 push_linux
 trap pop EXIT
 
-[ ! -f .config ] && fatal "Missing kernel configuration."
-[ ! -f Module.symvers ] && fatal "Missing Module.symvers."
-[ ! -d "$karch_dir" ] && fatal "Unrecognised karch: $karch"
+[[ -d "$karch_dir" ]] || fatal "Unrecognised karch: $karch"
 
 echo Running modules_prepare...
-make $make_opts modules_prepare >/dev/null
+make O="$target_dir" $build_opts modules_prepare
 
 echo Copying required files...
 
-for f in .config Makefile kernel/Makefile Module.symvers Documentation/DocBook/Makefile; do
+for f in Makefile kernel/Makefile Documentation/DocBook/Makefile; do
 	install -D -m644 "$f" "$target_dir/$f"
 done
 
@@ -88,7 +100,7 @@ for h in $(find $karch_dir -iname '*.h'); do
 	cp $h "$target_dir/$h"
 done
 
-cp -a scripts "$target_dir/scripts"
+cp -a scripts "$target_dir"
 # Don't strip binaries as only makes 200kb difference...
 
 mkdir -p "$target_karch_dir/kernel"
