@@ -95,10 +95,15 @@ done
 
 mkdir -p "$target_karch_dir"
 cp -a "$karch_dir/include" "$target_karch_dir"
+cp -a "$karch_dir/tools" "$target_karch_dir"
 for h in $(find $karch_dir -iname '*.h'); do
 	mkdir -p "$target_dir/$(dirname $h)"
 	cp $h "$target_dir/$h"
 done
+
+# Copy over tools include as some builds require this.
+mkdir -p "$target_dir/tools"
+cp -a tools/include "$target_dir/tools"
 
 cp -a scripts "$target_dir"
 # Don't strip binaries as only makes 200kb difference...
