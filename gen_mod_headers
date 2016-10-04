@@ -28,9 +28,14 @@ function get_full_path()
 	echo "$( cd "$1" ; pwd -P )"
 }
 
+function push()
+{
+	pushd $@ >/dev/null
+}
+
 function push_linux()
 {
-	pushd $linux_dir >/dev/null
+	push $linux_dir
 }
 
 function pop()
