@@ -17,7 +17,7 @@ function fatal()
 
 function usage()
 {
-	echo "usage: $(basename $0) [target dir] [linux source dir] <objects dir> <arch> <x-compile-prefix>">&2
+	echo "usage: $(basename $0) [target dir] [linux source dir] [objects dir] <arch> <x-compile-prefix>">&2
 
 	exit 1
 }
@@ -28,9 +28,14 @@ function get_full_path()
 	echo "$( cd "$1" ; pwd -P )"
 }
 
+function push()
+{
+	pushd $@ >/dev/null
+}
+
 function push_linux()
 {
-	pushd $linux_dir >/dev/null
+	push $linux_dir
 }
 
 function pop()
@@ -38,7 +43,7 @@ function pop()
 	popd >/dev/null
 }
 
-[[ $# -ge 2 ]] || usage
+[[ $# -ge 3 ]] || usage
 
 # Generate target dir if doesn't exist.
 install -dm755 $1
@@ -46,7 +51,7 @@ install -dm755 $1
 target_dir=$(get_full_path $1)
 linux_dir=$(get_full_path $2)
 # The directory containing .config and Module.symvers.
-obj_dir=$(get_full_path ${3:-$linux_dir})
+obj_dir=$(get_full_path $3)
 karch=${4:-x86}
 
 if [[ "$karch" != "x86" ]]; then
@@ -79,6 +84,13 @@ make O="$target_dir" $build_opts modules_prepare
 
 echo Copying required files...
 
+if [[ -n "$prefix" ]]; then
+	# Move host arch script binaries so we can fix them up later. We don't want to
+	# keep host binaries in place when we copy in source, we'll compile target arch
+	# versions later.
+	mv "$target_dir"/scripts "$target_dir"/xscripts
+fi
+
 for f in Makefile kernel/Makefile Documentation/DocBook/Makefile; do
 	install -D -m644 "$f" "$target_dir/$f"
 done
@@ -95,10 +107,15 @@ done
 
 mkdir -p "$target_karch_dir"
 cp -a "$karch_dir/include" "$target_karch_dir"
+cp -a "$karch_dir/tools" "$target_karch_dir"
 for h in $(find $karch_dir -iname '*.h'); do
 	mkdir -p "$target_dir/$(dirname $h)"
 	cp $h "$target_dir/$h"
 done
+
+# Copy over tools include as some builds require this.
+mkdir -p "$target_dir/tools"
+cp -a tools/include "$target_dir/tools"
 
 cp -a scripts "$target_dir"
 # Don't strip binaries as only makes 200kb difference...
@@ -129,5 +146,44 @@ for f in $(find . -name "Kconfig*"); do
 	mkdir -p "$target_dir/$(dirname $f)"
 	cp $f "$target_dir/$f"
 done
+
+if [[ -n "$prefix" ]]; then
+	echo Fixing up script binaries...
+
+	push "$target_dir"
+
+	# Make some backups so we can restore sanity after we're done.
+	cp scripts/basic/Makefile .backup.basic.Makefile
+	cp scripts/Kbuild.include .backup.kbuild.Makefile.include
+	cp scripts/Makefile.build .backup.Makefile.build
+	cp scripts/mod/Makefile .backup.mod.Makefile
+	cp scripts/kconfig/Makefile .backup.kconfig.Makefile
+
+	# Fixup Makefile's so they reference our host arch binaries in xscripts.
+	# We only need a few fixups since we're only building scripts here.
+	sed -i 's|$(obj)/fixdep|x$(obj)/fixdep|' scripts/basic/Makefile
+	sed -i 's|scripts/basic/fixdep|xscripts/basic/fixdep|' scripts/Kbuild.include
+	sed -i 's|scripts/basic/fixdep|xscripts/basic/fixdep|' scripts/Makefile.build
+	sed -i 's|$(obj)/mk_elfconfig|x$(obj)/mk_elfconfig|' scripts/mod/Makefile
+	sed -i 's|$(obj)/conf|x$(obj)/conf|' scripts/kconfig/Makefile
+
+	echo Building script binaries for target arch...
+
+	make HOSTCC=${prefix}gcc $build_opts scripts/
+
+	echo Cleaning up directory...
+
+	# Reinstate pristine Makefile's.
+	mv .backup.basic.Makefile scripts/basic/Makefile
+	mv .backup.kbuild.Makefile.include scripts/Kbuild.include
+	mv .backup.Makefile.build scripts/Makefile.build
+	mv .backup.mod.Makefile scripts/mod/Makefile
+	mv .backup.kconfig.Makefile scripts/kconfig/Makefile
+
+	# Clean up host script bins.
+	rm -rf xscripts
+
+	pop
+fi
 
 echo Done!

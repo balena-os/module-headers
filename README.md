@@ -2,18 +2,14 @@
 
 Generates kernel module headers from linux source.
 
-This is based on the [arch linux script][arch-script] which does the same task,
-expanded to better handle other architectures.
+This is based on the [arch linux script][arch-script] which performs the same
+task. We expand it to better handle cross-compiling to other architectures.
 
 ## Usage
 
 ```
-usage: gen_mod_headers [target dir] [linux source dir] <objects dir> <arch> <x-compile-prefix>
+usage: gen_mod_headers [target dir] [linux source dir] [objects dir] <arch> <x-compile-prefix>
 ```
-
-Note that `<objects dir>` defaults to the linux source dir (i.e. for the usual
-case where objects are generated in the same directory as the source), and
-`arch` defaults to x86.
 
 Ensure `.config` and `Module.symvers` are in the objects directory (this can be
 the same as the source directory.) If you don't have Module.symvers, you can
@@ -28,20 +24,22 @@ If you're generating a typical x86 on x86 build, you can simply run something
 like:
 
 ```bash
-./gen_mod_headers /tmp/headers ~/linux
+./gen_mod_headers /tmp/headers ~/kerndev/kernels/linux ~/kerndev/linux-obj
 ```
 
-Where `~/linux` here is your linux source code dir, and `/tmp/headers` the
-output directory.
+Where `/tmp/headers` is the desired output directory, `~/kerndev/kernels/linux`
+is your linux source code dir, and `~/kerndev/linux-obj` contains `.config`
+and `Module.symvers`.
 
-For cross compile you should specify architecture and some make parameters,
-e.g.:
+For cross compile you need to specify architecture and the prefix for your
+cross-compiler binaries, e.g.:
 
 ```bash
-./gen_mod_headers /tmp/headers ~/linux ~/linux arm arm-linux-gnueabihf-
+./gen_mod_headers /tmp/headers ~/kerndev/kernels/linux-arm ~/kerndev/linux-arm-obj arm arm-linux-gnueabihf-
 ```
 
-Here we specify arm and the `arm-linux-gnueabihf-` prefix.
+__IMPORTANT:__ Note that the script will generate headers that can only be used
+to compile modules on the target architecture.
 
 ## Compiling against the headers
 
