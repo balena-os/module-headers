@@ -17,7 +17,7 @@ function fatal()
 
 function usage()
 {
-	echo "usage: $(basename $0) [target dir] [linux source dir] <objects dir> <arch> <x-compile-prefix>">&2
+	echo "usage: $(basename $0) [target dir] [linux source dir] [objects dir] <arch> <x-compile-prefix>">&2
 
 	exit 1
 }
@@ -43,7 +43,7 @@ function pop()
 	popd >/dev/null
 }
 
-[[ $# -ge 2 ]] || usage
+[[ $# -ge 3 ]] || usage
 
 # Generate target dir if doesn't exist.
 install -dm755 $1
@@ -51,7 +51,7 @@ install -dm755 $1
 target_dir=$(get_full_path $1)
 linux_dir=$(get_full_path $2)
 # The directory containing .config and Module.symvers.
-obj_dir=$(get_full_path ${3:-$linux_dir})
+obj_dir=$(get_full_path $3)
 karch=${4:-x86}
 
 if [[ "$karch" != "x86" ]]; then
