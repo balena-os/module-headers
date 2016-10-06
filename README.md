@@ -8,7 +8,7 @@ task. We expand it to better handle cross-compiling to other architectures.
 ## Usage
 
 ```
-usage: gen_mod_headers [target dir] [linux source dir] [objects dir] <arch> <x-compile-prefix>
+usage: gen_mod_headers [target dir] [linux source dir] [objects dir] <arch> <x-compile-prefix> <customcc>
 ```
 
 Ensure `.config` and `Module.symvers` are in the objects directory (this can be
@@ -40,6 +40,11 @@ cross-compiler binaries, e.g.:
 
 __IMPORTANT:__ Note that the script will generate headers that can only be used
 to compile modules on the target architecture.
+
+### Advanced
+
+If you need to use a specific custom cross-compiler when building binaries in
+the `scripts/` directory, set `customcc` accordingly.
 
 ## Compiling against the headers
 
