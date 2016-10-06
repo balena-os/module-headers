@@ -108,6 +108,7 @@ for d in include $extra_header_dirs; do
 	[ -d "$d" ] && mkdir -p "$target_dir/$d"
 done
 
+# Configure arch/<arch> directory.
 mkdir -p "$target_karch_dir"
 cp -a "$karch_dir/include" "$target_karch_dir"
 cp -a "$karch_dir/tools" "$target_karch_dir"
