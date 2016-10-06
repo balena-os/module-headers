@@ -57,7 +57,10 @@ prefix=$5
 hostcc="${6:-${prefix}gcc}"
 
 # FIXME: We assume host arch == x86.
-if [[ "$karch" != "x86" ]]; then
+if [[ "$karch" == "x86" ]]; then
+	# We don't want to do any of the scripts/ bins dance if we're x86.
+	unset prefix
+else
 	[[ -n $prefix ]] || fatal "Non-x86 arch but no prefix specified."
 
 	build_opts="ARCH=$karch CROSS_COMPILE=$prefix"
