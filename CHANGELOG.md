@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.0.5
+
+* Add parameter to allow use of custom cross-compiler when building `scripts/`
+  binaries.
+
 ## v0.0.4
 
 * Fix bug whereby if the `prefix` env var was set in the host it'd cause
