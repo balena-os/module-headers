@@ -17,7 +17,7 @@ function fatal()
 
 function usage()
 {
-	echo "usage: $(basename $0) [target dir] [linux source dir] [objects dir] <arch> <x-compile-prefix>">&2
+	echo "usage: $(basename $0) [target dir] [linux source dir] [objects dir] <arch> <x-compile-prefix> <customcc>">&2
 
 	exit 1
 }
@@ -54,6 +54,7 @@ linux_dir=$(get_full_path $2)
 obj_dir=$(get_full_path $3)
 karch=${4:-x86}
 prefix=$5
+hostcc="${6:-${prefix}gcc}"
 
 # FIXME: We assume host arch == x86.
 if [[ "$karch" != "x86" ]]; then
@@ -169,7 +170,7 @@ if [[ -n "$prefix" ]]; then
 
 	echo Building script binaries for target arch...
 
-	make HOSTCC=${prefix}gcc $build_opts scripts/
+	make HOSTCC="$hostcc" $build_opts scripts/
 
 	echo Cleaning up directory...
 
