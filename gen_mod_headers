@@ -59,9 +59,11 @@ hostcc="${6:-${prefix}gcc}"
 # FIXME: We assume host arch == x86.
 if [[ "$karch" != "x86" ]]; then
 	[[ -n $prefix ]] || fatal "Non-x86 arch but no prefix specified."
-
-	build_opts="ARCH=$karch CROSS_COMPILE=$prefix"
 fi
+
+build_opts=""
+# Regardless of target arch, if a prefix is specified we are cross-compiling.
+[[ -z "$prefix" ]] || build_opts="ARCH=$karch CROSS_COMPILE=$prefix"
 
 karch_dir="arch/$karch"
 target_karch_dir="$target_dir/$karch_dir"
