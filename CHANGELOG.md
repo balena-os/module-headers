@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.0.7
+
+* Only copy directories if they exist.
+
 ## v0.0.6
 
 * Add ability to cross-compile x86 to x86.
