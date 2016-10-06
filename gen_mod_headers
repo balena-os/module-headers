@@ -112,9 +112,9 @@ done
 mkdir -p "$target_karch_dir"
 cp -a "$karch_dir/include" "$target_karch_dir"
 cp -a "$karch_dir/tools" "$target_karch_dir"
-for h in $(find $karch_dir -iname '*.h'); do
-	mkdir -p "$target_dir/$(dirname $h)"
-	cp $h "$target_dir/$h"
+for f in $(find $karch_dir -iname '*.h' -o -name 'Makefile' -o -iname '*.tbl' -o -iname '*.sh'); do
+	mkdir -p "$target_dir/$(dirname $f)"
+	cp $f "$target_dir/$f"
 done
 
 # Copy over tools include as some builds require this.
