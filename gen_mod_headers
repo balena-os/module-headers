@@ -59,9 +59,11 @@ hostcc="${6:-${prefix}gcc}"
 # FIXME: We assume host arch == x86.
 if [[ "$karch" != "x86" ]]; then
 	[[ -n $prefix ]] || fatal "Non-x86 arch but no prefix specified."
-
-	build_opts="ARCH=$karch CROSS_COMPILE=$prefix"
 fi
+
+build_opts=""
+# Regardless of target arch, if a prefix is specified we are cross-compiling.
+[[ -z "$prefix" ]] || build_opts="ARCH=$karch CROSS_COMPILE=$prefix"
 
 karch_dir="arch/$karch"
 target_karch_dir="$target_dir/$karch_dir"
@@ -106,12 +108,18 @@ for d in include $extra_header_dirs; do
 	[ -d "$d" ] && mkdir -p "$target_dir/$d"
 done
 
+# Configure arch/<arch> directory.
 mkdir -p "$target_karch_dir"
 cp -a "$karch_dir/include" "$target_karch_dir"
 cp -a "$karch_dir/tools" "$target_karch_dir"
-for h in $(find $karch_dir -iname '*.h'); do
-	mkdir -p "$target_dir/$(dirname $h)"
-	cp $h "$target_dir/$h"
+for f in $(find $karch_dir -iname '*.h' -o -name 'Makefile' -o -iname '*.tbl' -o -iname '*.sh'); do
+	mkdir -p "$target_dir/$(dirname $f)"
+	cp $f "$target_dir/$f"
+done
+
+for f in $(find security -iname '*.h'); do
+	mkdir -p "$target_dir/$(dirname $f)"
+	cp $f "$target_dir/$f"
 done
 
 # Copy over tools include as some builds require this.

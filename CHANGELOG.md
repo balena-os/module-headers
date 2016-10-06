@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.0.6
+
+* Add ability to cross-compile x86 to x86.
+
 ## v0.0.5
 
 * Add parameter to allow use of custom cross-compiler when building `scripts/`
