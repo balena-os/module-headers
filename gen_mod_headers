@@ -155,6 +155,14 @@ for f in Makefile_32.cpu kernel/asm-offsets.s; do
 	[ -f $p ] && cp "$p" "$target_karch_dir/$f"
 done
 
+# Address sources with this kind of hacks
+# https://github.com/raspberrypi/linux/commit/a66649dab35033bd67988670fa60c268b0444cda
+mkdir -p "$target_karch_dir/kernel/vdso"
+for f in gettimeofday.S note.S sigreturn.S; do
+	p="$karch_dir//kernel/vdso/$f"
+	[ -f $p ] && cp "$p" "$target_karch_dir/kernel/vdso/$f"
+done
+
 # Copy in extra headers. Directories already created above.
 for d in $extra_header_dirs; do
 	[ -d "$d" ] && (cp $d/*.h "$target_dir/$d" || true)
