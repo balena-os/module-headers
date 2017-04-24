@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.0.8
+
+* Fix build when vdso build is triggered
+
 ## v0.0.7
 
 * Only copy directories if they exist.
