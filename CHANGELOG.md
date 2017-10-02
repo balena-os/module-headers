@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.0.9
+
+* Support kernel 4.13 which no longer has DocBook
+
 ## v0.0.8
 
 * Fix build when vdso build is triggered

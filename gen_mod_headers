@@ -114,7 +114,10 @@ if [[ -n "$prefix" ]]; then
 fi
 
 for f in Makefile kernel/Makefile Documentation/DocBook/Makefile; do
-	install -D -m644 "$f" "$target_dir/$f"
+	# DocBook support is removed in 4.13
+	if [ -f "$f" ]; then
+		install -D -m644 "$f" "$target_dir/$f"
+	fi
 done
 
 # Arch Linux copies only specific directories, however the difference is 31M
