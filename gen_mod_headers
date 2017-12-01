@@ -183,6 +183,11 @@ for f in $(find . -name "Kconfig*"); do
 	copy_mkdir "$target_dir" "$f"
 done
 
+# Fix arm64 file reference
+if [ "$karch" = "arm64" ] && [ -f "$karch_dir/include/asm/opcodes.h" ]; then
+	copy_mkdir "$target_dir" "./arch/arm/include/asm/opcodes.h"
+fi
+
 if [[ -n "$prefix" ]]; then
 	echo Fixing up script binaries...
 

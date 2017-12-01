@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.0.10
+
+* Fix aarch64 for kernel < 4.10
+
 ## v0.0.9
 
 * Support kernel 4.13 which no longer has DocBook
