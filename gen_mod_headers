@@ -102,7 +102,7 @@ trap pop EXIT
 [[ -d "$karch_dir" ]] || fatal "Unrecognised karch: $karch"
 
 echo Running modules_prepare...
-make O="$target_dir" $build_opts modules_prepare
+make HOSTCC="$hostcc" O="$target_dir" $build_opts modules_prepare
 
 echo Copying required files...
 

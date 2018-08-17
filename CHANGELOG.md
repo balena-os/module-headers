@@ -1,5 +1,7 @@
 # Changelog
 
+* Fix hostcc in module_prepare
+
 ## v0.0.10
 
 * Fix aarch64 for kernel < 4.10
