@@ -1,5 +1,7 @@
 # Changelog
 
+## v0.0.11
+
 * Fix hostcc in module_prepare
 
 ## v0.0.10
