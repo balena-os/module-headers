@@ -74,6 +74,7 @@ obj_dir=$(get_full_path $3)
 karch=${4:-x86}
 prefix=$5
 hostcc="${6:-${prefix}gcc}"
+hostcc_native="${7:-${prefix}gcc}"
 
 # FIXME: We assume host arch == x86.
 if [[ "$karch" != "x86" ]]; then
@@ -102,7 +103,7 @@ trap pop EXIT
 [[ -d "$karch_dir" ]] || fatal "Unrecognised karch: $karch"
 
 echo Running modules_prepare...
-make HOSTCC="$hostcc" O="$target_dir" $build_opts modules_prepare
+make HOSTCC="$hostcc_native" O="$target_dir" $build_opts modules_prepare
 
 echo Copying required files...
 
