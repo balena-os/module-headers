@@ -4,6 +4,12 @@
 
 * Fix hostcc in module_prepare
 
+# v0.0.12
+## (2018-11-30)
+
+* Add objtool support [Zubair Lutfullah Kakakhel]
+* Pass separate native hostcc to modules_prepare [Zubair Lutfullah Kakakhel]
+
 ## v0.0.10
 
 * Fix aarch64 for kernel < 4.10
