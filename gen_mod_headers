@@ -74,6 +74,7 @@ obj_dir=$(get_full_path $3)
 karch=${4:-x86}
 prefix=$5
 hostcc="${6:-${prefix}gcc}"
+hostcc_native="${7:-${prefix}gcc}"
 
 # FIXME: We assume host arch == x86.
 if [[ "$karch" != "x86" ]]; then
@@ -102,7 +103,7 @@ trap pop EXIT
 [[ -d "$karch_dir" ]] || fatal "Unrecognised karch: $karch"
 
 echo Running modules_prepare...
-make HOSTCC="$hostcc" O="$target_dir" $build_opts modules_prepare
+make HOSTCC="$hostcc_native" O="$target_dir" $build_opts modules_prepare
 
 echo Copying required files...
 
@@ -111,6 +112,9 @@ if [[ -n "$prefix" ]]; then
 	# keep host binaries in place when we copy in source, we'll compile target arch
 	# versions later.
 	mv "$target_dir"/scripts "$target_dir"/xscripts
+	if [ -d "$target_dir/tools" ]; then
+		mv "$target_dir"/tools "$target_dir"/xtools
+	fi
 fi
 
 for f in Makefile kernel/Makefile Documentation/DocBook/Makefile; do
@@ -145,6 +149,11 @@ done
 # Copy over tools include as some builds require this.
 mkdir -p "$target_dir/tools"
 copy_dir tools/include "$target_dir/tools"
+copy_dir tools/objtool "$target_dir/tools"
+copy_dir tools/lib "$target_dir/tools"
+copy_dir tools/scripts "$target_dir/tools"
+copy_dir tools/build "$target_dir/tools"
+cp tools/Makefile "$target_dir/tools"
 
 copy_dir scripts "$target_dir"
 # Don't strip binaries as only makes 200kb difference...
@@ -199,6 +208,9 @@ if [[ -n "$prefix" ]]; then
 	cp scripts/Makefile.build .backup.Makefile.build
 	cp scripts/mod/Makefile .backup.mod.Makefile
 	cp scripts/kconfig/Makefile .backup.kconfig.Makefile
+	if [[ -e tools/build/Makefile ]]; then
+		cp tools/build/Makefile .backup.tools.build.Makefile
+	fi
 
 	# Fixup Makefile's so they reference our host arch binaries in xscripts.
 	# We only need a few fixups since we're only building scripts here.
@@ -207,10 +219,22 @@ if [[ -n "$prefix" ]]; then
 	sed -i 's|scripts/basic/fixdep|xscripts/basic/fixdep|' scripts/Makefile.build
 	sed -i 's|$(obj)/mk_elfconfig|x$(obj)/mk_elfconfig|' scripts/mod/Makefile
 	sed -i 's|$(obj)/conf|x$(obj)/conf|' scripts/kconfig/Makefile
+	if [[ -e tools/build/Makefile ]]; then
+		sed -i 's|$(QUIET_LINK)$(HOSTCC) $(LDFLAGS) -o $@ $<|$(QUIET_LINK)$(HOSTCC) $(LDFLAGS) -o fixdep_native $<|' tools/build/Makefile
+	fi
+
+	# copy objtools fixdep
+	if [[ -e xtools/objtool/fixdep ]]; then
+		cp xtools/objtool/fixdep tools/objtool/
+	fi
 
 	echo Building script binaries for target arch...
-
 	make HOSTCC="$hostcc" $build_opts scripts/
+
+	# copy the native fixdep back
+	if [[ -e tools/build/fixdep_native ]]; then
+		mv tools/build/fixdep_native tools/objtool/fixdep
+	fi
 
 	echo Cleaning up directory...
 
@@ -220,9 +244,15 @@ if [[ -n "$prefix" ]]; then
 	mv .backup.Makefile.build scripts/Makefile.build
 	mv .backup.mod.Makefile scripts/mod/Makefile
 	mv .backup.kconfig.Makefile scripts/kconfig/Makefile
+	if [[ -e tools/build/Makefile ]]; then
+		mv .backup.tools.build.Makefile tools/build/Makefile
+	fi
 
 	# Clean up host script bins.
 	rm -rf xscripts
+	if [ -d xtools ]; then
+		rm -rf xtools
+	fi
 
 	pop
 fi
