@@ -221,6 +221,8 @@ if [[ -n "$prefix" ]]; then
 	sed -i 's|$(obj)/conf|x$(obj)/conf|' scripts/kconfig/Makefile
 	if [[ -e tools/build/Makefile ]]; then
 		sed -i 's|$(QUIET_LINK)$(HOSTCC) $(LDFLAGS) -o $@ $<|$(QUIET_LINK)$(HOSTCC) $(LDFLAGS) -o fixdep_native $<|' tools/build/Makefile
+		# trying to apply the previous sed in context of 4.18 kernel
+		sed -i 's|$(QUIET_LINK)$(HOSTCC) $(HOSTLDFLAGS) -o $@ $<|$(QUIET_LINK)$(HOSTCC) $(HOSTLDFLAGS) -o fixdep_native $<|' tools/build/Makefile
 	fi
 
 	# copy objtools fixdep
