@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file
 # v0.0.13
 ## (2018-11-30)
 
+# v0.0.15
+## (2019-05-13)
+
+* Use correct target for re-building the scripts [Florin Sarbu]
+
 # v0.0.14
 ## (2019-02-21)
 
