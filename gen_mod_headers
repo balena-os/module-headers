@@ -231,7 +231,7 @@ if [[ -n "$prefix" ]]; then
 	fi
 
 	echo Building script binaries for target arch...
-	make HOSTCC="$hostcc" $build_opts scripts/
+	make HOSTCC="$hostcc" $build_opts scripts
 
 	# copy the native fixdep back
 	if [[ -e tools/build/fixdep_native ]]; then
