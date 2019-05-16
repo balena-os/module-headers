@@ -219,23 +219,34 @@ if [[ -n "$prefix" ]]; then
 	sed -i 's|scripts/basic/fixdep|xscripts/basic/fixdep|' scripts/Makefile.build
 	sed -i 's|$(obj)/mk_elfconfig|x$(obj)/mk_elfconfig|' scripts/mod/Makefile
 	sed -i 's|$(obj)/conf|x$(obj)/conf|' scripts/kconfig/Makefile
-	if [[ -e tools/build/Makefile ]]; then
-		sed -i 's|$(QUIET_LINK)$(HOSTCC) $(LDFLAGS) -o $@ $<|$(QUIET_LINK)$(HOSTCC) $(LDFLAGS) -o fixdep_native $<|' tools/build/Makefile
-		# trying to apply the previous sed in context of 4.18 kernel
-		sed -i 's|$(QUIET_LINK)$(HOSTCC) $(HOSTLDFLAGS) -o $@ $<|$(QUIET_LINK)$(HOSTCC) $(HOSTLDFLAGS) -o fixdep_native $<|' tools/build/Makefile
-	fi
-
-	# copy objtools fixdep
-	if [[ -e xtools/objtool/fixdep ]]; then
-		cp xtools/objtool/fixdep tools/objtool/
-	fi
 
 	echo Building script binaries for target arch...
 	make HOSTCC="$hostcc" $build_opts scripts
 
-	# copy the native fixdep back
-	if [[ -e tools/build/fixdep_native ]]; then
-		mv tools/build/fixdep_native tools/objtool/fixdep
+	if [[ -e xtools/objtool/fixdep ]]; then
+	    if [[ -e tools/build/Makefile ]]; then
+		# let's use the native fixdep for the target objtool compilation
+		cp xtools/objtool/fixdep tools/objtool/
+
+		# let's make sure that objtool compilation won't overwrite the native fixdep we just copied so we rename it to fixdep_temp
+		sed -i 's|$(QUIET_LINK)$(HOSTCC) $(LDFLAGS) -o $@ $<|$(QUIET_LINK)$(HOSTCC) $(LDFLAGS) -o fixdep_temp $<|' tools/build/Makefile
+
+		# trying to apply the previous sed in context of 4.18 kernel
+		sed -i 's|$(QUIET_LINK)$(HOSTCC) $(HOSTLDFLAGS) -o $@ $<|$(QUIET_LINK)$(HOSTCC) $(HOSTLDFLAGS) -o fixdep_temp $<|' tools/build/Makefile
+	    fi
+
+	    echo Building objtool for target
+	    make -C tools/objtool HOSTCC="$hostcc" $build_opts
+	    rm -rf tools/objtool/fixdep tools/objtool/fixdep_temp
+	    mv .backup.tools.build.Makefile tools/build/Makefile
+
+            if [[ -e tools/build/Makefile ]]; then
+	        echo Building fixdep for target
+    	        make -C tools/build HOSTCC="$hostcc" $build_opts
+
+    	        # move the target fixdep to the expected location
+    	        mv tools/build/fixdep tools/objtool/
+    	    fi
 	fi
 
 	echo Cleaning up directory...
@@ -246,15 +257,15 @@ if [[ -n "$prefix" ]]; then
 	mv .backup.Makefile.build scripts/Makefile.build
 	mv .backup.mod.Makefile scripts/mod/Makefile
 	mv .backup.kconfig.Makefile scripts/kconfig/Makefile
-	if [[ -e tools/build/Makefile ]]; then
-		mv .backup.tools.build.Makefile tools/build/Makefile
-	fi
 
 	# Clean up host script bins.
 	rm -rf xscripts
 	if [ -d xtools ]; then
 		rm -rf xtools
 	fi
+
+	# Remove unneeded binary and object files
+	rm -rf arch/x86/tools/relocs arch/x86/tools/relocs*.o
 
 	pop
 fi
