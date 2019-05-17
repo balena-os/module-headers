@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file
 # v0.0.13
 ## (2018-11-30)
 
+# v0.0.16
+## (2019-05-17)
+
+* Compile objtool fixdep binary for the target [Florin Sarbu]
+
 # v0.0.15
 ## (2019-05-13)
 
