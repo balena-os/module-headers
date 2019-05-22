@@ -226,7 +226,7 @@ if [[ -n "$prefix" ]]; then
 	sed -i 's|$(obj)/conf|x$(obj)/conf|' scripts/kconfig/Makefile
 
 	echo Building script binaries for target arch...
-	make HOSTCC="$hostcc" $build_opts scripts
+	make HOSTCC="$hostcc" HOSTLD="$LD" $build_opts scripts
 
 	if [[ -e xtools/objtool/fixdep ]]; then
 	    if [[ -e tools/build/Makefile ]]; then
@@ -241,13 +241,13 @@ if [[ -n "$prefix" ]]; then
 	    fi
 
 	    echo Building objtool for target
-	    make -C tools/objtool HOSTCC="$hostcc" $build_opts
+	    make -C tools/objtool HOSTCC="$hostcc" HOSTLD="$LD" $build_opts
 	    rm -rf tools/objtool/fixdep tools/objtool/fixdep_temp
 	    mv .backup.tools.build.Makefile tools/build/Makefile
 
             if [[ -e tools/build/Makefile ]]; then
 	        echo Building fixdep for target
-    	        make -C tools/build HOSTCC="$hostcc" $build_opts
+	        make -C tools/build HOSTCC="$hostcc" HOSTLD="$LD" $build_opts
 
     	        # move the target fixdep to the expected location
     	        mv tools/build/fixdep tools/objtool/
