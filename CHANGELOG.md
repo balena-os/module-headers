@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file
 # v0.0.13
 ## (2018-11-30)
 
+# v0.0.18
+## (2019-05-23)
+
+* Pass LD when we run make for target [Zubair Lutfullah Kakakhel]
+
 # v0.0.17
 ## (2019-05-23)
 
