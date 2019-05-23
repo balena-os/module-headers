@@ -197,6 +197,11 @@ if [ "$karch" = "arm64" ] && [ -f "$karch_dir/include/asm/opcodes.h" ]; then
 	copy_mkdir "$target_dir" "./arch/arm/include/asm/opcodes.h"
 fi
 
+# copy module.lds if it exists
+if [ "$karch" = "arm64" ] && [ -f "arch/arm64/kernel/module.lds" ]; then
+	copy_mkdir "$target_dir" "./arch/arm64/kernel/module.lds"
+fi
+
 if [[ -n "$prefix" ]]; then
 	echo Fixing up script binaries...
 
