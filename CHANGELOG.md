@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file
 # v0.0.13
 ## (2018-11-30)
 
+# v0.0.17
+## (2019-05-23)
+
+* Package module.lds for arm 64 bits [Florin Sarbu]
+
 # v0.0.16
 ## (2019-05-17)
 
