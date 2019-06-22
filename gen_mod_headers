@@ -238,6 +238,8 @@ if [[ -n "$prefix" ]]; then
 
 		# trying to apply the previous sed in context of 4.18 kernel
 		sed -i 's|$(QUIET_LINK)$(HOSTCC) $(HOSTLDFLAGS) -o $@ $<|$(QUIET_LINK)$(HOSTCC) $(HOSTLDFLAGS) -o fixdep_temp $<|' tools/build/Makefile
+		# trying to apply the previous sed in context of 5.0.3 kernel
+		sed -i 's|$(QUIET_LINK)$(HOSTCC) $(KBUILD_HOSTLDFLAGS) -o $@ $<|$(QUIET_LINK)$(HOSTCC) $(KBUILD_HOSTLDFLAGS) -o fixdep_temp $<|' tools/build/Makefile
 	    fi
 
 	    echo Building objtool for target
