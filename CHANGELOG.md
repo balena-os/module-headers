@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file
 # v0.0.13
 ## (2018-11-30)
 
+# v0.0.20
+## (2019-06-25)
+
+* Fix target modpost not being built on kernel 5.0.3 [Florin Sarbu]
+
 # v0.0.19
 ## (2019-06-22)
 
