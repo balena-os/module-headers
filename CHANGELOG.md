@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file
 # v0.0.13
 ## (2018-11-30)
 
+# v0.0.21
+## (2019-07-18)
+
+* Make sure correct utsrelease.h is packaged [Florin Sarbu]
+
 # v0.0.20
 ## (2019-06-25)
 
